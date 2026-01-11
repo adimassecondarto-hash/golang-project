@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Sekolah</title>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+  }
+  .header {
+    background-color: #2196f3;
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+  }
+  .container {
+    display: flex;
+    height: calc(100vh - 50px);
+  }
+  .sidebar {
+    background-color: #8ad4d4;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 20px;
+  }
+  .sidebar a {
+    text-decoration: none;
+    color: #000;
+    padding: 12px 18px;
+    border-radius: 8px;
+    background-color: #aee4e4;
+    margin: 0 10px;
+    transition: 0.2s;
+  }
+  .sidebar a:hover, .sidebar a.active {
+    background-color: #6fcaca;
+    font-weight: bold;
+    transform: translateX(5px);
+  }
+  .content {
+    flex: 1;
+    background-color: #ede9e9;
+    padding: 30px;
+  }
+  h2 { margin-top: 0; }
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  select, button {
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+  }
+  button.export-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button.update-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+  }
+  table th, table td {
+    border: 1px solid #aaa;
+    padding: 8px;
+  }
+  table th {
+    background-color: #f0f0f0;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>Dashboard Sekolah admin</div>
+  <div>Admin: {{.Username}}</div>
+</div>
+
+<div class="container">
+  <div class="sidebar">
+    <a href="#" id="siswaBtn" class="active">👥 Kehadiran Siswa</a>
+    <a href="#" id="guruBtn">👨‍🏫 Kehadiran Guru</a>
+  </div>
+
+  <div class="content">
+
+    <!-- === KEHADIRAN SISWA === -->
+    <div id="kehadiranSiswa">
+      <div class="top-bar">
+        <form action="/admin/update_siswa" method="POST">
+          <label>Nama Siswa: </label>
+          <select name="id">
+            {{range .Nama_siswa}}
+              <option value="{{.ID}}">{{.Nama}}</option>
+            {{end}}
+          </select>
+          <label>Kehadiran:</label>
+          <select name="kehadiran">
+            <option value="hadir">Hadir</option>
+            <option value="sakit">Sakit</option>
+            <option value="izin">Izin</option>
+            <option value="alpha">Alpha</option>
+          </select>
+          <button type="submit" class="update-btn">Update</button>
+        </form>
+        <form action="/admin/export_siswa" method="GET">
+          <button class="export-btn">Export Excel</button>
+        </form>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Kelas</th>
+            <th>Jenis Kelamin</th>
+            <th>Hari/Jadwal</th>
+            <th>Kehadiran</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range $index, $s := .Nama_siswa}}
+          <tr>
+            <td>{{$index | add 1}}</td>
+            <td>{{$s.Nama}}</td>
+            <td>{{$s.Kelas}}</td>
+            <td>{{$s.Jenis_Kelamin}}</td>
+            <td>{{$s.Hari_Jadwal}}</td>
+            <td>{{$s.Kehadiran}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- === KEHADIRAN GURU === -->
+    <div id="kehadiranGuru" style="display:none;">
+      <div class="top-bar">
+        <form action="/admin/update_guru" method="POST">
+          <label>Nama Guru: </label>
+          <select name="id">
+            {{range .Mapel}}
+              <option value="{{.ID}}">{{.Guru_pengajar}}</option>
+            {{end}}
+          </select>
+          <label>Kehadiran:</label>
+          <select name="kehadiran">
+            <option value="hadir">Hadir</option>
+            <option value="sakit">Sakit</option>
+            <option value="izin">Izin</option>
+            <option value="alpha">Alpha</option>
+          </select>
+          <button type="submit" class="update-btn">Update</button>
+        </form>
+        <form action="/admin/export_guru" method="GET">
+          <button class="export-btn">Export Excel</button>
+        </form>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Mata Pelajaran</th>
+            <th>Guru Pengajar</th>
+            <th>Kehadiran Guru</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range $index, $g := .Mapel}}
+          <tr>
+            <td>{{$index | add 1}}</td>
+            <td>{{$g.Mata_pelajaran}}</td>
+            <td>{{$g.Guru_pengajar}}</td>
+            <td>{{$g.Kehadiran_guru}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const siswaBtn = document.getElementById('siswaBtn');
+  const guruBtn = document.getElementById('guruBtn');
+  const siswaSection = document.getElementById('kehadiranSiswa');
+  const guruSection = document.getElementById('kehadiranGuru');
+
+  siswaBtn.addEventListener('click', () => {
+    siswaBtn.classList.add('active');
+    guruBtn.classList.remove('active');
+    siswaSection.style.display = 'block';
+    guruSection.style.display = 'none';
+  });
+
+  guruBtn.addEventListener('click', () => {
+    guruBtn.classList.add('active');
+    siswaBtn.classList.remove('active');
+    guruSection.style.display = 'block';
+    siswaSection.style.display = 'none';
+  });
+</script>
+
+</body>
+</htm>

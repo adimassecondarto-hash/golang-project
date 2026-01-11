@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Siswa</title>
+
+<!-- Tambahkan SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: white;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background-color: #2196f3;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ===== CONTAINER ===== */
+  .container {
+    display: flex;
+    height: calc(100vh - 50px);
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    background-color: #8ad4d4;
+    width: 200px;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sidebar a {
+    color: #000;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 12px 18px;
+    margin: 0 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #aee4e4;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.25s ease;
+  }
+
+  .sidebar a:hover {
+    background-color: #6fcaca;
+    transform: translateX(5px);
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .sidebar a.active {
+    background-color: #5fc0c0;
+    color: #000;
+    font-weight: bold;
+    transform: translateX(5px);
+    box-shadow: inset 4px 0 0 #000;
+  }
+
+  /* ===== CONTENT ===== */
+  .content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 50px;
+    background-color: #f5f5f5;
+  }
+
+  .form-box {
+    background-color: #e3e0e0;
+    padding: 25px;
+    border-radius: 10px;
+    width: 350px;
+  }
+
+  .form-box label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .form-box input, 
+  .form-box select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .form-box button {
+    width: 100%;
+    background-color: limegreen;
+    color: white;
+    border: none;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .form-box button:hover {
+    background-color: #00a000;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div>Dashboard Siswa</div>
+    <div>Siswa: {{.Username}}</div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <a href="#" class="active" id="absenBtn">👤 Absen</a>
+      <a href="#" id="mapelBtn">📘 Mapel</a>
+    </div>
+    
+    <div class="content" id="contentArea">
+      <!-- Form Absen Default -->
+      <div class="form-box" id="formAbsen">
+        <form id="absenForm" action="/absensi_siswa" method="POST">
+          <label>Nama Siswa</label>
+          <input type="text" name="nama" required>
+
+          <label>Kelas</label>
+          <input type="text" name="kelas" required>
+
+          <label>Jenis Kelamin</label>
+          <input type="text" name="jenis_kelamin" required>
+
+          <label>Hari / Jadwal</label>
+          <input type="text" name="hari_jadwal" required>
+
+          <label>Kehadiran</label>
+          <select name="kehadiran" required>
+            <option value="hadir">Hadir</option>
+            <option value="sakit">Sakit</option>
+            <option value="izin">Izin</option>
+            <option value="alpha">Alpha</option>
+          </select>
+
+          <button type="submit">Submit jika yakin</button>
+        </form>
+      </div>
+
+      <!-- Tampilan Mapel -->
+      <div class="form-box" id="formMapel" style="display:none;">
+       <!--  -->
+         <div class="content" id="contentArea">
+      <!-- Form mapel -->
+      <div class="form-box" id="formAbsen">
+        <form id="absenForm" action="/mapel" method="POST">
+
+          <label>guru pengajar</label>
+          <input type="text" name="guru_pengajar" required>
+          <label>mata pelajaran</label>
+            <select name="mata_pelajaran" required>
+             <option value="bahasa_inggris">bahasa_inggris</option>
+            <option value="bahasa_indonesia">bahasa_indonesia</option>
+            <option value="matematika">matematika</option>
+            <option value="agama_islam">agama_islam</option>
+          </select>
+          <label>kehadiran guru</label>
+          <select name="kehadiran_guru" required>
+            <option value="hadir">Hadir</option>
+            <option value="sakit">Sakit</option>
+            <option value="izin">Izin</option>
+            <option value="alpha">Alpha</option>
+          </select>
+
+          <button type="submit">Submit jika yakin</button>
+        </form>
+      </div>
+  </div>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+  // Toggle aktif dan tampil konten
+  const absenBtn = document.getElementById('absenBtn');
+  const mapelBtn = document.getElementById('mapelBtn');
+  const formAbsen = document.getElementById('formAbsen');
+  const formMapel = document.getElementById('formMapel');
+
+  absenBtn.addEventListener('click', () => {
+    absenBtn.classList.add('active');
+    mapelBtn.classList.remove('active');
+    formAbsen.style.display = 'block';
+    formMapel.style.display = 'none';
+  });
+
+  mapelBtn.addEventListener('click', () => {
+    mapelBtn.classList.add('active');
+    absenBtn.classList.remove('active');
+    formAbsen.style.display = 'none';
+    formMapel.style.display = 'block';
+  });
+
+  // SweetAlert interaktif
+  const form = document.getElementById('absenForm');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Yakin data sudah benar?',
+      text: 'Data absensi akan dikirim sebagai bukti absensi.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, kirim!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Absensi kamu sudah dikirim 🎉',
+          showConfirmButton: false,
+          timer: 2000
+        });
+        setTimeout(() => form.submit(), 2000);
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Dibatalkan',
+          text: 'Kamu bisa periksa kembali data absensi',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  });
+
+  // SWEETALERT UNTUK FORM MAPEL 
+  const mapelForm = document.querySelector('#formMapel form');
+  mapelForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    Swal.fire({
+      title: 'Yakin data mapel sudah benar?',
+      text: 'Data mapel akan disimpan sebagai bukti absensi.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, kirim!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Tersimpan!',
+          text: 'Data mata pelajaran berhasil dikirim 📘',
+          showConfirmButton: false,
+          timer: 2000
+        });
+        setTimeout(() => mapelForm.submit(), 2000);
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Dibatalkan',
+          text: 'Kamu bisa cek ulang data mapel',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
